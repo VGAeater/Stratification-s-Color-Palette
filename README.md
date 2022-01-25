@@ -7,7 +7,7 @@
 
 [Fade](#Fade)
 
-[HappyFace](#HappyFace)
+[Happy-Face-D](#HappyFace)
 
 ## Classic
 
@@ -37,7 +37,7 @@ Like Gradient it has two color bars, but it also has four position sliders used 
 
 There are two blobs that do not initially appear, you have to change the color to see them.
 
-## HappyFace
+## Happy Face :D
 
 [Original](#Original)
 

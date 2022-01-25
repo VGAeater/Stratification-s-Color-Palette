@@ -1,34 +1,80 @@
-import pygame
+import pygame, os, math
+from PIL import Image 
+import numpy as np
 
-class classic():
-  def rgb_to_hex(rgb):
-    return '%02x%02x%02x' % rgb
-
+class overlay():
   def run():
-    size = width, height = 352, 352
+    ims = []
 
-    pygame.display.set_caption("Stratification's Color Palette Classic")
+    for root, dirs, files in os.walk("./"):
+      for name in files:
+        if name.endswith((".png", ".jpg")):
+          imsize = Image.open(name).convert('L').size
+          
+          if imsize[0] < imsize[1]:
+            tempim = Image.open(name)
+            ims.append(tempim.resize((int(math.ceil(imsize[0]/(imsize[0]/256))), int(math.ceil(imsize[1]/(imsize[0]/256))))).convert('L'))
+          if imsize[0] > imsize[1]:
+            tempim = Image.open(name)
+            ims.append(tempim.resize((int(math.ceil(imsize[0]/(imsize[1]/256))), int(math.ceil(imsize[1]/(imsize[1]/256))))).convert('L'))
+          if imsize[0] == imsize[1]:
+            if (256 == imsize[0]) and (256 == imsize[1]):
+              ims.append(Image.open(name).convert('L'))
+            else:
+              tempim = Image.open(name)
+              ims.append(tempim.resize((int(math.ceil(imsize[0]/(imsize[1]/256))), int(math.ceil(imsize[1]/(imsize[1]/256))))).convert('L'))
+
+    del(imsize)
+
+    perlin = []
+    perlin_collide = []
+
+    for ims_i in range(len(ims)):
+      ims[ims_i] = np.stack((ims[ims_i],)*3, axis=-1)
+      print(ims_i)
+      
+      perlin.append([])
+      perlin_collide.append(pygame.Rect((ims_i*64+1)-(ims_i//3)*192, 257, 62, 62))
+
+      for im_i in range(len(ims[ims_i])):
+        perlin[ims_i].append([])
+
+        for r_i in range(len(ims[ims_i][im_i])):
+          perlin[ims_i][im_i].append(ims[ims_i][im_i][r_i][0]/255+.15)
+
+    #perlin.append([])
+    #perlin_collide.append(pygame.Rect(((len(perlin)-1)*64+1)-((len(perlin)-1)//3)*192, 257, 62, 62))
+
+    #for im_i in range(256):
+    #  perlin[-1].append([])
+
+    #  for r_i in range(256):
+    #    perlin[-1][im_i].append((perlin[0][im_i][r_i])/2+(perlin[2][im_i][r_i])/2)
+
+    current_perlin = perlin[0]
+    index = 0
+
+    size = width, height = 352, 320
+
+    arrow = pygame.transform.rotozoom(pygame.image.load(r'arrow.png'), 0, .25)
+
+    pygame.display.set_caption("Stratification's Color Palette Overlay")
     screen = pygame.display.set_mode(size, pygame.RESIZABLE)
     font = pygame.font.SysFont('Comic Sans MS', 20)
-    save = pygame.transform.rotozoom(pygame.image.load(r'save.png'), 0, .15)
-    clear = pygame.transform.rotozoom(pygame.image.load(r'clear.png'), 0, .15)
     icon = pygame.image.load(r'icon.png')
     pygame.display.set_icon(icon)
 
-    saved_colors = []
-    saved_colors_rects = []
-
     quit = False
-
-    buttons = [
-      [pygame.Rect(1,257,30,30), False],
-      [pygame.Rect(1,289,30,30), False]
-    ]
 
     colors = [
       [pygame.Rect(257, 257, 30, 30), '', False, 0],
       [pygame.Rect(289, 257, 30, 30), '', False, 0],
       [pygame.Rect(321, 257, 30, 30), '', False, 0]
+    ]
+
+    buttons = [
+      [pygame.Rect(194, 257, 30, 62), False],
+      [pygame.Rect(226, 257, 30, 62), False]
     ]
 
     while True:
@@ -37,7 +83,6 @@ class classic():
       for events in pygame.event.get():
         if events.type == pygame.QUIT:
           quit = True
-          break
         if pygame.mouse.get_pressed()[0]:
           try:
             mouse_x, mouse_y = events.pos
@@ -57,16 +102,15 @@ class classic():
               color[2] = not color[2]
             else:
               color[2] = False
-            
+          
+          for i in range(len(perlin)):
+            if i//3 == index:
+              if perlin_collide[i].collidepoint(events.pos):
+                current_perlin = perlin[i]
+          
           for button in buttons:
             if button[0].collidepoint(events.pos):
               button[1] = True
-          
-          for i in range(len(saved_colors_rects)):
-            if saved_colors_rects[i].collidepoint(events.pos):
-              colors[0][3] = saved_colors[i][0]
-              colors[1][3] = saved_colors[i][1]
-              colors[2][3] = saved_colors[i][2]
 
         if events.type == pygame.KEYDOWN:
           for color in colors:
@@ -90,55 +134,57 @@ class classic():
             width, height = events.size
             if width < 352:
                 width = 352
-            if height < 352:
-                height = 352
+            if height < 320:
+                height = 320
             screen = pygame.display.set_mode((width,height), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
-        
-        if events.type == pygame.MOUSEMOTION:
-          mouse_pos = events.pos
 
       if quit:
         break
 
-      pygame.draw.rect(screen, (colors[0][3], colors[1][3], colors[2][3]), (0,0,256,256))
+      screen.blit(arrow, (187,268))
+      screen.blit(pygame.transform.rotozoom(arrow, 180, 1), (219,267))
+
+      if buttons[0][1]:
+        if index != 0:
+          index -= 1
+        else:
+          index = (len(perlin)-1)//3
+        buttons[0][1] = False
+      
+      if buttons[1][1]:
+        if index != (len(perlin)-1)//3:
+          index += 1
+        else:
+          index = 0
+        buttons[1][1] = False
+
+      for y in range(256):
+        for x in range(256):
+          screen.set_at((x,y), (
+              255 if colors[0][3]*current_perlin[y][x] > 255 else colors[0][3]*current_perlin[y][x],
+              255 if colors[1][3]*current_perlin[y][x] > 255 else colors[1][3]*current_perlin[y][x],
+              255 if colors[2][3]*current_perlin[y][x] > 255 else colors[2][3]*current_perlin[y][x]
+            )
+          )
+      
+      for i in range(len(perlin)):
+        if i//3 == index:
+          pygame.draw.rect(screen, (0,0,0), perlin_collide[i], 1)
+          for x in range(60):
+            for y in range(60):
+              color = 255 if (perlin[i][y*4][x*4])*255 > 255 else (perlin[i][y*4][x*4])*255
+              screen.set_at((perlin_collide[i].x+x+1, perlin_collide[i].y+y+1), (color, color, color))
+
 
       for y in range(256):
         pygame.draw.line(screen, (y, 0, 0), (256, y), (287, y))
         pygame.draw.line(screen, (0, y, 0), (288, y), (319, y))
         pygame.draw.line(screen, (0, 0, y), (320, y), (352, y))
 
-      if buttons[0][1] == True:
-        if len(saved_colors) < 21:
-          saved_colors.append((colors[0][3], colors[1][3], colors[2][3]))
-          i = len(saved_colors)-1
-          saved_colors_rects.append(pygame.Rect(i*32+33-(i//7*224), i//7*32+257, 30, 30))
-        buttons[0][1] = False
-      
-      if buttons[1][1] == True:
-        try:
-          saved_colors.pop()
-          saved_colors_rects.pop()
-        except:
-          pass
-        buttons[1][1] = False
-
-      for i in range(len(saved_colors)):
-        pygame.draw.rect(screen, saved_colors[i], saved_colors_rects[i])
-        pygame.draw.rect(screen, (0,0,0), saved_colors_rects[i], 1)
-
       pygame.draw.rect(screen, (0, 0, 0), colors[0][0], width=1)
       pygame.draw.rect(screen, (0, 0, 0), colors[1][0], width=1)
       pygame.draw.rect(screen, (0, 0, 0), colors[2][0], width=1)
       pygame.draw.rect(screen, (0, 0, 0), (257,289,94,30), width=1)
-      pygame.draw.rect(screen, (0, 0, 0), (257,321,94,30), width=1)
-
-      pygame.draw.rect(screen, (0, 0, 0), buttons[0][0], width=1)
-      pygame.draw.rect(screen, (0, 0, 0), buttons[1][0], width=1)
-      pygame.draw.rect(screen, (0, 0, 0), (1,321,30,30), width=1)
-
-      screen.blit(save, (buttons[0][0].x+3,buttons[0][0].y+3))
-      screen.blit(clear, (buttons[1][0].x+3,buttons[1][0].y+3))
-      screen.blit(pygame.transform.rotozoom(icon, 0, .18), (2,322))
 
       pygame.draw.circle(screen, (156, 156, 156), (272, colors[0][3]), 10, width=4)
       pygame.draw.circle(screen, (156, 156, 156), (304, colors[1][3]), 10, width=4)
@@ -149,26 +195,13 @@ class classic():
       pygame.draw.circle(screen, (196, 196, 196), (336, colors[2][3]), 10, width=2)
 
       rgbtsurface = font.render(f"{colors[0][3]} - {colors[1][3]} - {colors[2][3]}", False, (0, 0, 0))
-      hextsurface = font.render(f"#{classic.rgb_to_hex((colors[0][3], colors[1][3], colors[2][3]))}", False, (0, 0, 0))
       rtsurface = font.render(f"{colors[0][1]}", False, (0, 0, 0))
       gtsurface = font.render(f"{colors[1][1]}", False, (0, 0, 0))
       btsurface = font.render(f"{colors[2][1]}", False, (0, 0, 0))
 
       screen.blit(rgbtsurface,(261,296))
-      screen.blit(hextsurface,(261,328))
       screen.blit(rtsurface, (colors[0][0].x+1, colors[0][0].y+8))
       screen.blit(gtsurface, (colors[1][0].x+1, colors[1][0].y+8))
       screen.blit(btsurface, (colors[2][0].x+1, colors[2][0].y+8))
-
-      for i in range(len(saved_colors_rects)):
-        if saved_colors_rects[i].collidepoint(mouse_pos):
-          length = (pygame.font.Font.size(font, f"#{classic.rgb_to_hex(saved_colors[i])}")[0]+4 if pygame.font.Font.size(font, str(saved_colors[i]))[0] < pygame.font.Font.size(font, f"#{classic.rgb_to_hex(saved_colors[i])}")[0] else pygame.font.Font.size(font, str(saved_colors[i]))[0]+4)
-
-          pygame.draw.rect(screen, "light grey", (mouse_pos[0]-2, mouse_pos[1]-34, length, 34))
-          pygame.draw.rect(screen, (156, 156, 156), (mouse_pos[0]-2, mouse_pos[1]-34, length, 34), width=1)
-          rgbtag = font.render(f"{str(saved_colors[i])}", False, (0, 0, 0))
-          hextag = font.render(f"#{classic.rgb_to_hex(saved_colors[i])}", False, (0, 0, 0))
-          screen.blit(rgbtag, (mouse_pos[0], mouse_pos[1]-32))
-          screen.blit(hextag, (mouse_pos[0], mouse_pos[1]-16))
 
       pygame.display.update()

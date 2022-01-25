@@ -1,5 +1,4 @@
 import pygame
-pygame.init()
 
 class omega2():
   def run():
@@ -20,12 +19,13 @@ class omega2():
       for events in pygame.event.get():
         if events.type == pygame.QUIT:
           quit = True
+          break
 
       if quit:
         break
 
       for y in range(256):
         for x in range(256):
-          pygame.draw.circle(screen, (x, y, z), (x+z, y+z), 1)
+          screen.set_at((x+z, y+z), (x, y, z))
 
       pygame.display.update()

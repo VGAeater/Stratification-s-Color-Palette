@@ -1,6 +1,4 @@
 import pygame, math
-pygame.init()
-pygame.font.init()
 
 class gradient():
   def maxn(num, max):
@@ -35,6 +33,7 @@ class gradient():
       for events in pygame.event.get():
         if events.type == pygame.QUIT:
           quit = True
+          break
         if pygame.mouse.get_pressed()[0]:
           try:
             mouse_x, mouse_y = events.pos

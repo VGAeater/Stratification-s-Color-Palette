@@ -2,8 +2,6 @@ import pygame
 from omega1 import omega1
 from omega2 import omega2
 from omega3 import omega3
-pygame.init()
-pygame.font.init()
 
 class omega():
   def run():
@@ -31,6 +29,7 @@ class omega():
       for events in pygame.event.get():
         if events.type == pygame.QUIT:
           quit = True
+          break
 
         if events.type == pygame.MOUSEBUTTONDOWN:
           for button in buttons:

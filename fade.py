@@ -1,6 +1,4 @@
 import pygame, math
-pygame.init()
-pygame.font.init()
 
 class fade():
   def maxn(num, max):
@@ -38,6 +36,7 @@ class fade():
       for events in pygame.event.get():
         if events.type == pygame.QUIT:
           quit = True
+          break
         if pygame.mouse.get_pressed()[0]:
           try:
             mouse_x, mouse_y = events.pos
@@ -104,11 +103,11 @@ class fade():
 
       for y in range(256):
         for x in range(256):
-          pygame.draw.circle(screen, (
+          screen.set_at((x,y), (
             fade.maxn(fade.minn(colors[0][3]-math.dist((x, y), b1), 0)+fade.minn(colors[3][3]-math.dist((x, y), b2), 0), 255),
             fade.maxn(fade.minn(colors[1][3]-math.dist((x, y), b1), 0)+fade.minn(colors[4][3]-math.dist((x, y), b2), 0), 255),
-            fade.maxn(fade.minn(colors[2][3]-math.dist((x, y), b1), 0)+fade.minn(colors[5][3]-math.dist((x, y), b2), 0), 255)
-          ), (x, y), 1)
+            fade.maxn(fade.minn(colors[2][3]-math.dist((x, y), b1), 0)+fade.minn(colors[5][3]-math.dist((x, y), b2), 0), 255))
+          )
 
       for y in range(256):
         pygame.draw.line(screen, (y, 0, 0), (256, y), (287, y))

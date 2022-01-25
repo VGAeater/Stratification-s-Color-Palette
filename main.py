@@ -1,7 +1,8 @@
-import pygame, sys
+import pygame
 from classic import classic
 from gradient import gradient
 from fade import fade
+from overlay import overlay
 from omega import omega
 pygame.init()
 pygame.font.init()
@@ -15,11 +16,14 @@ def home():
   icon = pygame.image.load(r'icon.png')
   pygame.display.set_icon(icon)
 
+  quit = False
+
   buttons = [
     [pygame.Rect(1,31,62,30), False, classic],
     [pygame.Rect(65,31,62,30), False, gradient],
     [pygame.Rect(129,31,62,30), False, fade],
-    [pygame.Rect(193,31,62,30), False, omega]
+    [pygame.Rect(193,31,62,30), False, overlay],
+    [pygame.Rect(257,31,62,30), False, omega]
   ]
 
   while True:
@@ -27,7 +31,7 @@ def home():
 
     for events in pygame.event.get():
       if events.type == pygame.QUIT:
-        sys.exit()
+        quit = True
 
       if events.type == pygame.MOUSEBUTTONDOWN:
         for button in buttons:
@@ -43,17 +47,23 @@ def home():
       
       pygame.draw.rect(screen, (0, 0, 0), button[0], width=1)
 
+    if quit:
+      pygame.quit()
+      break
+
     tsurface = font.render("Welcome to Stratification's Color Palette!", True, (0, 0, 0))
     classictsurface = font.render("Classic", True, (0, 0, 0))
     gradienttsurface = font.render("Gradient", True, (0, 0, 0))
     fadetsurface = font.render("Fade", True, (0, 0, 0))
+    overlaytsurface = font.render("Overlay", True, (0, 0, 0))
     omegatsurface = font.render(":D", True, (0, 0, 0))
 
     screen.blit(tsurface,(4,8))
     screen.blit(classictsurface,(4,38))
     screen.blit(gradienttsurface,(68,38))
     screen.blit(fadetsurface,(132,38))
-    screen.blit(omegatsurface,(197,38))
+    screen.blit(overlaytsurface,(197,38))
+    screen.blit(omegatsurface,(261,38))
 
     pygame.display.update()
 

@@ -7,7 +7,7 @@
 
 [Fade](#Fade)
 
-[Happy-Face-D](#HappyFace)
+[Happy-Face-:D](#Happy-Face-:D)
 
 ## Classic
 

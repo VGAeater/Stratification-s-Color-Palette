@@ -13,7 +13,9 @@
 
 ## Install
 
-To install first get python3.7 from https://www.python.org/. 
+To install first get python3.8 from https://www.python.org/. 
+
+Then install Pygame with pip3 install pygame. 
 
 Then download the files, extract them into a folder, and run main.py. 
 

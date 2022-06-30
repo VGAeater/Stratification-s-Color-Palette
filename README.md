@@ -1,6 +1,8 @@
 # Stratification's Color Palette
 ## Home
 
+[Install](#Install)
+
 [Classic](#Classic)
 
 [Gradient](#Gradient)
@@ -8,6 +10,12 @@
 [Fade](#Fade)
 
 [:D](#D)
+
+## Install
+
+To install first get python3.7 from https://www.python.org/. 
+
+Then download the files, extract them into a folder, and run main.py. 
 
 ## Classic
 
@@ -47,6 +55,12 @@ There are two blobs that do not initially appear, you have to change the color t
 
 ## Original
 
+Colors
+
 ## V2
 
+More Colors
+
 ## V3
+
+Even More Colors
